@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dharshigaa P S | Data Analyst Portfolio</title>
+<meta name="description" content="Data analyst portfolio: Excel data cleaning, dashboards, SQL, Power BI, Tableau and SPSS survey analysis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #F4F6F9;
+    --surface: #FFFFFF;
+    --ink: #16213E;
+    --muted: #5B6782;
+    --line: #DDE3EC;
+    --teal: #0B7A7C;
+    --teal-soft: #E1F2F2;
+    --saffron: #B87410;
+    --coral: #B93A46;
+    --chip: #E8EEF5;
+    --on-teal: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1424; --surface: #171F35; --ink: #EAF0FA; --muted: #9AA8C7; --line: #2A3552;
+      --teal: #3CC3C5; --teal-soft: #14363F; --saffron: #F2B04B; --coral: #F0707B; --chip: #212B47; --on-teal: #0E1424;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1424; --surface: #171F35; --ink: #EAF0FA; --muted: #9AA8C7; --line: #2A3552;
+    --teal: #3CC3C5; --teal-soft: #14363F; --saffron: #F2B04B; --coral: #F0707B; --chip: #212B47; --on-teal: #0E1424;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 17px; line-height: 1.55;
+  }
+  h1, h2, h3 { font-family: 'Sora', 'Segoe UI', system-ui, sans-serif; line-height: 1.2; margin: 0; }
+  a { color: var(--teal); }
+  a:focus-visible, .btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; border-radius: 6px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; gap: 18px; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
+  nav .brand { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--ink); text-decoration: none; }
+  nav ul { display: flex; gap: 16px; list-style: none; margin: 0; padding: 0; font-size: 0.95rem; }
+  nav ul a { color: var(--muted); text-decoration: none; }
+  nav ul a:hover { color: var(--ink); }
+  @media (max-width: 560px) { nav ul li:nth-child(n+3) { display: none; } }
+
+  .hero { padding: 64px 0 48px; }
+  .eyebrow { color: var(--teal); font-weight: 600; letter-spacing: 0.04em; font-size: 0.9rem; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(2.1rem, 6vw, 3.4rem); font-weight: 700; margin-bottom: 14px; }
+  .hero .lead { font-size: 1.2rem; max-width: 40em; color: var(--ink); margin: 0 0 24px; }
+  .hero .lead span { color: var(--muted); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-block; padding: 11px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; border: 1.5px solid var(--teal); }
+  .btn.primary { background: var(--teal); color: var(--on-teal); }
+  .btn.ghost { color: var(--teal); background: transparent; }
+  .facts { display: flex; flex-wrap: wrap; gap: 10px 26px; margin: 30px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 0.95rem; }
+  .facts strong { color: var(--ink); font-family: 'Sora', sans-serif; font-weight: 500; }
+
+  section { padding: 44px 0; border-top: 1px solid var(--line); }
+  section > .wrap > h2 { font-size: 1.6rem; margin-bottom: 8px; }
+  .intro { color: var(--muted); margin: 0 0 26px; max-width: 46em; }
+
+  .projects { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 820px) { .projects { grid-template-columns: 1fr 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .card h3 { font-size: 1.15rem; font-weight: 700; }
+  .tag { align-self: flex-start; font-size: 0.78rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); }
+  .tag.sim { background: var(--chip); color: var(--muted); }
+  .card p { margin: 0; }
+  .card ul { margin: 0; padding-left: 1.15em; }
+  .card li { margin-bottom: 4px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
+  .tools span { font-size: 0.8rem; padding: 2px 9px; border-radius: 6px; background: var(--chip); color: var(--muted); }
+  .card .link { font-weight: 600; }
+  .card.wide { grid-column: 1 / -1; }
+
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+  .before td { color: var(--coral); }
+  .after td { color: var(--teal); font-weight: 600; }
+  .rowlabel { font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 500; }
+
+  .cols { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 820px) { .cols { grid-template-columns: repeat(3, 1fr); } }
+  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .box h3 { font-size: 1rem; margin-bottom: 10px; }
+  .box ul { margin: 0; padding-left: 1.15em; }
+  .box li { margin-bottom: 5px; }
+  .note { color: var(--muted); font-size: 0.92rem; margin-top: 16px; max-width: 46em; }
+
+  .contact p { max-width: 40em; }
+  footer { padding: 28px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top">Dharshigaa P S</a>
+    <ul>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">Data analyst &middot; Open to freelance projects</div>
+    <h1>I turn messy spreadsheets into clear reports and dashboards.</h1>
+    <p class="lead">I'm a BCom (Computer Applications) graduate who works with Excel, SQL, Power BI, Tableau and SPSS. <span>I'm early in my career, so I check my work carefully and explain my findings in plain language.</span></p>
+    <div class="actions">
+      <a class="btn primary" href="#contact">Work with me</a>
+      <a class="btn ghost" href="#work">See my projects</a>
+    </div>
+    <ul class="facts">
+      <li><strong>160,000+</strong> records analysed in a job simulation</li>
+      <li><strong>150</strong> farmers surveyed in my research project</li>
+      <li><strong>Tamil and English</strong></li>
+    </ul>
+  </div>
+</header>
+
+<section id="work">
+  <div class="wrap">
+    <h2>Selected work</h2>
+    <p class="intro">Two of these are sample projects with made-up data that I built to show how I work. The other two come from a job simulation and my college research project.</p>
+
+    <div class="projects">
+
+      <article class="card">
+        <span class="tag">Sample project</span>
+        <h3>Retail sales dashboard</h3>
+        <p>An interactive dashboard for a fictional three-branch store, built to answer the questions a shop owner would ask: what sells, when, and what loses money.</p>
+        <ul>
+          <li>KPIs for sales, profit, margin, transactions and average bill</li>
+          <li>Monthly trend, payment mode split and margin by category</li>
+          <li>Filters by category, branch and payment mode</li>
+          <li>Flags products that sell at a loss after discounts</li>
+        </ul>
+        <a class="link" href="dashboard.html" target="_blank" rel="noopener">Open the live dashboard</a>
+        <div class="tools"><span>Dashboard design</span><span>KPI analysis</span><span>Data storytelling</span></div>
+      </article>
+
+      <article class="card">
+        <span class="tag">Sample project</span>
+        <h3>Excel data cleaning and sales report</h3>
+        <p>A fictional stationery shop's sales log, full of the problems real sheets have, cleaned and turned into a summary with a chart.</p>
+        <ul>
+          <li>78 messy rows cleaned to 70 accurate rows</li>
+          <li>Five date formats, misspelled products and text-based numbers fixed</li>
+          <li>5 duplicate invoices and 3 rows with no product removed</li>
+          <li>Summary sheet with totals, ranking, monthly sales and a cross-check</li>
+        </ul>
+        <div class="tools"><span>Excel</span><span>Pivot-style summaries</span><span>SUMIFS</span><span>Data validation</span></div>
+      </article>
+
+      <article class="card">
+        <span class="tag sim">Job simulation</span>
+        <h3>Factory downtime analysis</h3>
+        <p>Deloitte Australia data analytics job simulation, completed through Forage in 2026.</p>
+        <ul>
+          <li>Analysed 160,000+ telemetry records from 4 factories using Tableau and SQL</li>
+          <li>Built interactive dashboards with calculated fields and cross-filters</li>
+          <li>Identified the highest-downtime location and the most-affected machine, framed as priorities for maintenance scheduling</li>
+          <li>Ran a gender pay equality audit in Excel, classifying 37 job roles into Fair, Unfair and Highly Discriminative categories with IF and ABS formulas</li>
+        </ul>
+        <div class="tools"><span>Tableau</span><span>SQL</span><span>Excel</span></div>
+      </article>
+
+      <article class="card">
+        <span class="tag sim">College research</span>
+        <h3>Crop insurance and farmers' income</h3>
+        <p>An independent research project, 2025 to 2026, on how crop insurance affects farmers' income and livelihood.</p>
+        <ul>
+          <li>Designed a questionnaire and collected primary data from 150 farmers</li>
+          <li>Applied descriptive statistics, frequency analysis and correlation testing in SPSS</li>
+          <li>Found that crop insurance reduced income volatility and improved livelihood stability for smallholder farmers, and turned that into a policy-relevant recommendation</li>
+        </ul>
+        <div class="tools"><span>SPSS</span><span>Survey design</span><span>Statistics</span></div>
+      </article>
+
+      <article class="card wide">
+        <span class="tag">Sample project: before and after</span>
+        <h3>What "cleaning" means</h3>
+        <p>The same sales entries, before and after. Same information, but the second version can actually be added up and analysed.</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th></th><th>Date</th><th>Product</th><th>Qty</th><th>Price</th><th>Payment</th></tr></thead>
+            <tbody>
+              <tr class="before"><td class="rowlabel">Before</td><td>5-Oct-25</td><td>note book a4</td><td>2 pcs</td><td>Rs.60</td><td>Gpay</td></tr>
+              <tr class="after"><td class="rowlabel">After</td><td>05-Oct-2025</td><td>Notebook A4</td><td>2</td><td>60</td><td>UPI</td></tr>
+              <tr class="before"><td class="rowlabel">Before</td><td>2025.10.07</td><td>Gell Pen </td><td>5 nos</td><td>20/-</td><td>cash</td></tr>
+              <tr class="after"><td class="rowlabel">After</td><td>07-Oct-2025</td><td>Gel Pen</td><td>5</td><td>20</td><td>Cash</td></tr>
+              <tr class="before"><td class="rowlabel">Before</td><td>Oct 9, 2025</td><td>STAPPLER</td><td>1</td><td>&#8377;85</td><td>Debit card</td></tr>
+              <tr class="after"><td class="rowlabel">After</td><td>09-Oct-2025</td><td>Stapler</td><td>1</td><td>85</td><td>Card</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <h2>How I can help</h2>
+    <p class="intro">Small, clearly scoped projects are my focus right now.</p>
+    <div class="cols">
+      <div class="box">
+        <h3>Excel data cleaning</h3>
+        <ul>
+          <li>Fix mixed date formats and spellings</li>
+          <li>Remove duplicates and blanks</li>
+          <li>Standardise categories and payment types</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Reports and dashboards</h3>
+        <ul>
+          <li>Pivot tables and charts</li>
+          <li>One-page dashboards in Excel, Power BI or Tableau</li>
+          <li>Plain-language summary of the findings</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Survey analysis</h3>
+        <ul>
+          <li>Questionnaire structure</li>
+          <li>Descriptive statistics, frequencies and correlations in SPSS</li>
+          <li>Clear charts and tables for reports</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Before any project starts, I ask for a small sample of your data (with private details removed), so we can agree the scope, price and delivery time together.</p>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <h2>Skills and background</h2>
+    <p class="intro">What I use, and where I studied.</p>
+    <div class="cols">
+      <div class="box">
+        <h3>Tools</h3>
+        <ul>
+          <li>SQL and PostgreSQL</li>
+          <li>Python</li>
+          <li>Power BI (dashboards, DAX basics)</li>
+          <li>Tableau</li>
+          <li>Advanced Excel (pivot tables, VLOOKUP, IF and ABS)</li>
+          <li>SPSS</li>
+          <li>Tally Prime with GST</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Education</h3>
+        <ul>
+          <li>BCom, Computer Applications, 2023 to 2026, PSGR Krishnammal College for Women, Coimbatore</li>
+        </ul>
+        <h3 style="margin-top:16px">Languages</h3>
+        <ul>
+          <li>Tamil (native)</li>
+          <li>English (professional working proficiency)</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Certifications</h3>
+        <ul>
+          <li>Deloitte Australia data analytics job simulation (Forage, 2026)</li>
+          <li>SQL for Data Analysis (2026)</li>
+          <li>Python for Data Analysis (2026)</li>
+          <li>Power BI for Beginners (2026)</li>
+          <li>RDBMS PostgreSQL training</li>
+          <li>Microsoft Office Specialist</li>
+          <li>Google Digital Marketing and E-commerce</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap">
+    <h2>Let's talk about your data</h2>
+    <p class="intro">Send me a short description of what you need and, if you can, a small sample of your file. I'll reply with what I can do, a price and a delivery time.</p>
+    <div class="actions">
+      <a class="btn primary" href="mailto:dharshigaaps@gmail.com">dharshigaaps@gmail.com</a>
+      <a class="btn ghost" href="https://www.linkedin.com/in/dharshigaasaravanan" target="_blank" rel="noopener">View my LinkedIn profile</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Dharshigaa P S, based in Erode, Tamil Nadu. The retail dashboard and the Excel cleaning project use made-up sample data.
+  </div>
+</footer>
+
+</body>
+</html>

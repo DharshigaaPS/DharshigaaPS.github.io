@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Retail sales dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #F1F4F8;
+    --surface: #FFFFFF;
+    --ink: #16213E;
+    --muted: #5B6782;
+    --line: #DDE3EC;
+    --teal: #0F8B8D;
+    --saffron: #D98E1F;
+    --coral: #C8434F;
+    --navy: #2B3A67;
+    --chip: #E8EEF5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1424;
+      --surface: #171F35;
+      --ink: #EAF0FA;
+      --muted: #9AA8C7;
+      --line: #2A3552;
+      --teal: #3CC3C5;
+      --saffron: #F2B04B;
+      --coral: #F0707B;
+      --navy: #8EA2E6;
+      --chip: #212B47;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1424;
+    --surface: #171F35;
+    --ink: #EAF0FA;
+    --muted: #9AA8C7;
+    --line: #2A3552;
+    --teal: #3CC3C5;
+    --saffron: #F2B04B;
+    --coral: #F0707B;
+    --navy: #8EA2E6;
+    --chip: #212B47;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 48px; }
+  h1, h2, .num { font-family: 'Sora', 'Segoe UI', system-ui, sans-serif; }
+  h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 6px; font-weight: 700; }
+  .sub { color: var(--muted); margin: 0 0 22px; max-width: 70ch; }
+  h2 { font-size: 1rem; font-weight: 500; margin: 0 0 4px; }
+  .note { color: var(--muted); font-size: 0.875rem; margin: 0 0 12px; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 20px; align-items: end; }
+  .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 0.875rem; color: var(--muted); }
+  .filters select {
+    font: inherit; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; min-width: 150px;
+  }
+  .filters button {
+    font: inherit; color: var(--ink); background: transparent;
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; cursor: pointer;
+  }
+  select:focus-visible, button:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 16px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .kpi .label { color: var(--muted); font-size: 0.875rem; }
+  .kpi .num { font-size: 1.55rem; font-weight: 700; margin: 2px 0; }
+  .kpi .delta { font-size: 0.8125rem; color: var(--muted); min-height: 1.2em; }
+  .up { color: var(--teal); font-weight: 600; }
+  .down { color: var(--coral); font-weight: 600; }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
+  .chart { position: relative; height: 290px; }
+  .chart.short { height: 260px; }
+  @media (min-width: 900px) {
+    .grid { grid-template-columns: repeat(12, 1fr); }
+    .p-trend { grid-column: span 8; }
+    .p-pay { grid-column: span 4; }
+    .p-cat { grid-column: span 5; }
+    .p-prod { grid-column: span 7; }
+    .p-ins { grid-column: span 12; }
+  }
+
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.8125rem; }
+  td.r, th.r { text-align: right; }
+  .pill { display: inline-block; padding: 1px 9px; border-radius: 999px; background: var(--chip); font-size: 0.8125rem; }
+  .pill.low { background: transparent; border: 1px solid var(--coral); color: var(--coral); }
+
+  .insights { margin: 0; padding-left: 1.2em; max-width: 90ch; }
+  .insights li { margin-bottom: 8px; }
+  .foot { color: var(--muted); font-size: 0.8125rem; margin-top: 22px; max-width: 80ch; }
+  .err { padding: 12px; color: var(--coral); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p><a href="index.html" style="color:var(--teal)">&larr; Back to portfolio</a></p>
+  <h1>Retail sales dashboard</h1>
+  <p class="sub">Twelve months of sales for a small general store with three branches, from October 2025 to September 2026. Use the filters to see how each category, branch and payment mode performs.</p>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>Category <select id="fCat"></select></label>
+    <label>Branch <select id="fBranch"></select></label>
+    <label>Payment mode <select id="fPay"></select></label>
+    <button id="reset" type="button">Reset filters</button>
+  </div>
+
+  <section class="kpis" aria-label="Key figures">
+    <div class="kpi"><div class="label">Net sales</div><div class="num" id="kSales">-</div><div class="delta" id="kSalesD"></div></div>
+    <div class="kpi"><div class="label">Profit</div><div class="num" id="kProfit">-</div><div class="delta" id="kProfitD"></div></div>
+    <div class="kpi"><div class="label">Profit margin</div><div class="num" id="kMargin">-</div><div class="delta" id="kMarginD"></div></div>
+    <div class="kpi"><div class="label">Transactions</div><div class="num" id="kTx">-</div><div class="delta"></div></div>
+    <div class="kpi"><div class="label">Average bill</div><div class="num" id="kAvg">-</div><div class="delta"></div></div>
+  </section>
+
+  <div class="grid">
+    <section class="panel p-trend">
+      <h2>Monthly sales and profit</h2>
+      <p class="note" id="trendNote"></p>
+      <div class="chart"><canvas id="cTrend" role="img" aria-label="Line chart of monthly net sales and profit"></canvas></div>
+    </section>
+
+    <section class="panel p-pay">
+      <h2>How customers pay</h2>
+      <p class="note">Share of net sales by payment mode</p>
+      <div class="chart"><canvas id="cPay" role="img" aria-label="Doughnut chart of net sales by payment mode"></canvas></div>
+    </section>
+
+    <section class="panel p-cat">
+      <h2>Profit margin by category</h2>
+      <p class="note">The lowest margin is highlighted</p>
+      <div class="chart short"><canvas id="cCat" role="img" aria-label="Bar chart of profit margin by category"></canvas></div>
+    </section>
+
+    <section class="panel p-prod">
+      <h2>Top products by net sales</h2>
+      <p class="note">Margins under 10% are outlined</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Product</th><th>Category</th><th class="r">Net sales</th><th class="r">Margin</th></tr></thead>
+          <tbody id="prodBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel p-ins">
+      <h2>What the data shows</h2>
+      <p class="note">These points update with the filters</p>
+      <ul class="insights" id="insights"></ul>
+    </section>
+  </div>
+
+  <p class="foot">All figures are generated sample data for a fictional store, created for a portfolio example. Amounts are in Indian rupees. Net sales are after discount; profit is net sales minus product cost.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function () {
+  // ---------- Sample data (seeded, so it is the same every time) ----------
+  function rng(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  var rand = rng(2026);
+  function pick(a) { return a[Math.floor(rand() * a.length)]; }
+  function wpick(items) {
+    var tot = 0, i;
+    for (i = 0; i < items.length; i++) tot += items[i][1];
+    var r = rand() * tot;
+    for (i = 0; i < items.length; i++) { r -= items[i][1]; if (r <= 0) return items[i][0]; }
+    return items[0][0];
+  }
+
+  var MONTHS = [
+    'Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026','Mar 2026',
+    'Apr 2026','May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026'
+  ];
+  var SEASON = [1.25, 1.15, 1.0, 1.2, 0.9, 0.95, 1.1, 0.95, 0.9, 0.92, 0.98, 1.05];
+  var FESTIVE = { 0: true, 1: true, 3: true, 6: true };
+
+  // name, category, price, cost, discount options, max qty, popularity weight
+  var PRODUCTS = [
+    ['Basmati rice 5 kg', 'Groceries', 620, 540, [0, 0, 5], 2, 6],
+    ['Toor dal 1 kg', 'Groceries', 165, 138, [0, 0, 5], 3, 9],
+    ['Sunflower oil 1 L', 'Groceries', 150, 132, [0, 0, 5], 3, 10],
+    ['Sugar 1 kg', 'Groceries', 48, 42, [0, 0], 4, 10],
+    ['Paneer 200 g', 'Dairy', 95, 78, [0, 5], 3, 7],
+    ['Ghee 500 ml', 'Dairy', 330, 285, [0, 0, 5], 2, 5],
+    ['Curd 500 g', 'Dairy', 35, 29, [0, 0], 4, 9],
+    ['Instant noodles combo', 'Snacks', 120, 108, [15, 15, 20], 3, 6],
+    ['Potato chips family pack', 'Snacks', 60, 46, [5, 10, 15], 4, 8],
+    ['Assorted biscuit box', 'Snacks', 85, 68, [5, 10, 15], 3, 7],
+    ['Filter coffee powder 500 g', 'Beverages', 290, 235, [0, 5, 5], 2, 6],
+    ['Tea powder 500 g', 'Beverages', 240, 198, [0, 5], 2, 6],
+    ['Packaged juice 1 L', 'Beverages', 110, 88, [5, 10], 3, 6],
+    ['Detergent powder 2 kg', 'Household', 260, 215, [5, 10, 10], 2, 6],
+    ['Dish wash liquid', 'Household', 145, 118, [5, 10], 3, 6],
+    ['Floor cleaner', 'Household', 170, 140, [5, 10], 2, 5],
+    ['Shampoo 340 ml', 'Personal care', 190, 150, [0, 5, 10], 2, 5],
+    ['Soap pack of 4', 'Personal care', 150, 118, [0, 5], 3, 6],
+    ['Toothpaste 200 g', 'Personal care', 98, 72, [0, 5], 3, 7]
+  ];
+  var PROD_ITEMS = PRODUCTS.map(function (p) { return [p, p[6]]; });
+  var BRANCHES = [['Erode', 45], ['Coimbatore', 35], ['Salem', 20]];
+  var PAYMENTS = [['UPI', 52], ['Cash', 33], ['Card', 15]];
+
+  var ROWS = [];
+  for (var m = 0; m < 12; m++) {
+    var n = Math.round(330 * SEASON[m]);
+    for (var i = 0; i < n; i++) {
+      var p = wpick(PROD_ITEMS);
+      var qty = 1 + Math.floor(rand() * p[5]);
+      var d = pick(p[4]) + (FESTIVE[m] ? 5 : 0);
+      var net = p[2] * qty * (1 - d / 100);
+      ROWS.push({
+        m: m, product: p[0], cat: p[1], qty: qty, disc: d,
+        branch: wpick(BRANCHES), pay: wpick(PAYMENTS),
+        net: net, profit: net - p[3] * qty
+      });
+    }
+  }
+
+  // ---------- Helpers ----------
+  function el(id) { return document.getElementById(id); }
+  function css(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function inr(v) { return '\u20B9' + Math.round(v).toLocaleString('en-IN'); }
+  function fmtC(v) {
+    var a = Math.abs(v), s = v < 0 ? '-' : '';
+    if (a >= 1e7) return s + '\u20B9' + (a / 1e7).toFixed(2) + ' Cr';
+    if (a >= 1e5) return s + '\u20B9' + (a / 1e5).toFixed(2) + ' L';
+    if (a >= 1e3) return s + '\u20B9' + (a / 1e3).toFixed(1) + 'K';
+    return s + '\u20B9' + Math.round(a);
+  }
+  function pct(v, dp) { return v.toFixed(dp === undefined ? 1 : dp) + '%'; }
+  function sum(rows, k) { var t = 0; for (var i = 0; i < rows.length; i++) t += rows[i][k]; return t; }
+  function group(rows, keyFn) {
+    var out = {};
+    rows.forEach(function (r) {
+      var k = keyFn(r);
+      if (!out[k]) out[k] = { key: k, net: 0, profit: 0, disc: 0, n: 0, cat: r.cat };
+      out[k].net += r.net; out[k].profit += r.profit; out[k].disc += r.disc; out[k].n += 1;
+    });
+    return Object.keys(out).map(function (k) { return out[k]; });
+  }
+  function unique(key) {
+    var seen = {}, out = [];
+    ROWS.forEach(function (r) { if (!seen[r[key]]) { seen[r[key]] = 1; out.push(r[key]); } });
+    return out;
+  }
+  function withAlpha(hex, a) { return /^#[0-9a-f]{6}$/i.test(hex) ? hex + a : hex; }
+
+  // ---------- Filters ----------
+  var fCat = el('fCat'), fBranch = el('fBranch'), fPay = el('fPay');
+  function fill(select, label, values) {
+    select.innerHTML = '<option value="all">' + label + '</option>' +
+      values.map(function (v) { return '<option value="' + v + '">' + v + '</option>'; }).join('');
+  }
+  fill(fCat, 'All categories', unique('cat'));
+  fill(fBranch, 'All branches', unique('branch'));
+  fill(fPay, 'All payment modes', unique('pay'));
+
+  function filtered() {
+    return ROWS.filter(function (r) {
+      return (fCat.value === 'all' || r.cat === fCat.value) &&
+             (fBranch.value === 'all' || r.branch === fBranch.value) &&
+             (fPay.value === 'all' || r.pay === fPay.value);
+    });
+  }
+
+  // ---------- Charts ----------
+  var charts = {};
+  function destroyCharts() { Object.keys(charts).forEach(function (k) { charts[k].destroy(); }); charts = {}; }
+
+  function baseOptions() {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 250 },
+      plugins: { legend: { labels: { color: css('--muted'), usePointStyle: true, boxWidth: 8 } } }
+    };
+  }
+
+  function draw(rows) {
+    destroyCharts();
+    var teal = css('--teal'), saffron = css('--saffron'), coral = css('--coral'),
+        navy = css('--navy'), muted = css('--muted'), line = css('--line');
+    Chart.defaults.font.family = "'Source Sans 3', 'Segoe UI', system-ui, sans-serif";
+    Chart.defaults.color = muted;
+
+    // Monthly trend
+    var byMonth = MONTHS.map(function (_, i) {
+      var rs = rows.filter(function (r) { return r.m === i; });
+      return { net: sum(rs, 'net'), profit: sum(rs, 'profit') };
+    });
+    var o1 = baseOptions();
+    o1.interaction = { mode: 'index', intersect: false };
+    o1.plugins.tooltip = { callbacks: { label: function (c) { return c.dataset.label + ': ' + inr(c.parsed.y); } } };
+    o1.plugins.legend.position = 'bottom';
+    o1.scales = {
+      x: { grid: { display: false }, ticks: { color: muted, maxRotation: 0, autoSkip: true, callback: function (v) { return MONTHS[v].slice(0, 3); } } },
+      y: { beginAtZero: true, grid: { color: line }, ticks: { color: muted, callback: function (v) { return fmtC(v); } } }
+    };
+    charts.trend = new Chart(el('cTrend'), {
+      type: 'line',
+      data: {
+        labels: MONTHS,
+        datasets: [
+          { label: 'Net sales', data: byMonth.map(function (b) { return b.net; }), borderColor: teal, backgroundColor: withAlpha(teal, '22'), fill: true, tension: 0.3, pointRadius: 3, borderWidth: 2.5 },
+          { label: 'Profit', data: byMonth.map(function (b) { return b.profit; }), borderColor: saffron, backgroundColor: saffron, tension: 0.3, pointRadius: 3, borderWidth: 2.5 }
+        ]
+      },
+      options: o1
+    });
+
+    // Payment doughnut
+    var pay = group(rows, function (r) { return r.pay; }).sort(function (a, b) { return b.net - a.net; });
+    var totalNet = sum(rows, 'net') || 1;
+    var o2 = baseOptions();
+    o2.cutout = '62%';
+    o2.plugins.legend.position = 'bottom';
+    o2.plugins.tooltip = { callbacks: { label: function (c) { return c.label + ': ' + inr(c.parsed) + ' (' + pct(c.parsed / totalNet * 100) + ')'; } } };
+    charts.pay = new Chart(el('cPay'), {
+      type: 'doughnut',
+      data: {
+        labels: pay.map(function (p) { return p.key; }),
+        datasets: [{ data: pay.map(function (p) { return p.net; }), backgroundColor: [teal, saffron, navy], borderColor: css('--surface'), borderWidth: 2 }]
+      },
+      options: o2
+    });
+
+    // Category margin
+    var cats = group(rows, function (r) { return r.cat; }).map(function (c) {
+      c.margin = c.net ? c.profit / c.net * 100 : 0; return c;
+    }).sort(function (a, b) { return b.margin - a.margin; });
+    var lowest = cats.length ? cats[cats.length - 1].key : null;
+    var o3 = baseOptions();
+    o3.indexAxis = 'y';
+    o3.plugins.legend = { display: false };
+    o3.plugins.tooltip = { callbacks: { label: function (c) { return 'Margin: ' + pct(c.parsed.x); } } };
+    o3.scales = {
+      x: { beginAtZero: true, grid: { color: line }, ticks: { color: muted, callback: function (v) { return v + '%'; } } },
+      y: { grid: { display: false }, ticks: { color: muted } }
+    };
+    charts.cat = new Chart(el('cCat'), {
+      type: 'bar',
+      data: {
+        labels: cats.map(function (c) { return c.key; }),
+        datasets: [{ data: cats.map(function (c) { return c.margin; }), backgroundColor: cats.map(function (c) { return c.key === lowest && cats.length > 1 ? coral : teal; }), borderRadius: 4 }]
+      },
+      options: o3
+    });
+  }
+
+  // ---------- Text panels ----------
+  function setDelta(id, cur, prev, label) {
+    var node = el(id);
+    if (!prev) { node.textContent = ''; return; }
+    var ch = (cur - prev) / Math.abs(prev) * 100;
+    node.innerHTML = '<span class="' + (ch >= 0 ? 'up' : 'down') + '">' + (ch >= 0 ? 'Up ' : 'Down ') + pct(Math.abs(ch)) + '</span> ' + label;
+  }
+
+  function render() {
+    var rows = filtered();
+    var net = sum(rows, 'net'), profit = sum(rows, 'profit'), tx = rows.length;
+    el('kSales').textContent = fmtC(net);
+    el('kProfit').textContent = fmtC(profit);
+    el('kMargin').textContent = net ? pct(profit / net * 100) : '-';
+    el('kTx').textContent = tx.toLocaleString('en-IN');
+    el('kAvg').textContent = tx ? inr(net / tx) : '-';
+
+    var byMonth = MONTHS.map(function (_, i) {
+      var rs = rows.filter(function (r) { return r.m === i; });
+      return { net: sum(rs, 'net'), profit: sum(rs, 'profit') };
+    });
+    setDelta('kSalesD', byMonth[11].net, byMonth[10].net, 'in Sep vs Aug');
+    setDelta('kProfitD', byMonth[11].profit, byMonth[10].profit, 'in Sep vs Aug');
+    var mSep = byMonth[11].net ? byMonth[11].profit / byMonth[11].net * 100 : 0;
+    var mAug = byMonth[10].net ? byMonth[10].profit / byMonth[10].net * 100 : 0;
+    el('kMarginD').innerHTML = byMonth[11].net ? 'Sep: ' + pct(mSep) + ', Aug: ' + pct(mAug) : '';
+
+    var peakIdx = 0;
+    byMonth.forEach(function (b, i) { if (b.net > byMonth[peakIdx].net) peakIdx = i; });
+    el('trendNote').textContent = net ? 'Sales peak in ' + MONTHS[peakIdx] + ' at ' + fmtC(byMonth[peakIdx].net) + '.' : 'No sales for this selection.';
+
+    if (typeof Chart === 'undefined') {
+      document.querySelector('.p-trend .chart').innerHTML = '<p class="err">Charts could not load. Check your internet connection and reload the page.</p>';
+    } else {
+      draw(rows);
+    }
+
+    // Top products table
+    var prods = group(rows, function (r) { return r.product; }).sort(function (a, b) { return b.net - a.net; });
+    el('prodBody').innerHTML = prods.slice(0, 6).map(function (p) {
+      var mg = p.net ? p.profit / p.net * 100 : 0;
+      return '<tr><td>' + p.key + '</td><td><span class="pill">' + p.cat + '</span></td><td class="r">' + inr(p.net) +
+        '</td><td class="r"><span class="pill' + (mg < 10 ? ' low' : '') + '">' + pct(mg) + '</span></td></tr>';
+    }).join('');
+
+    // Insights
+    var items = [];
+    if (rows.length) {
+      var cats = group(rows, function (r) { return r.cat; });
+      var topCat = cats.slice().sort(function (a, b) { return b.net - a.net; })[0];
+      items.push(topCat.key + ' brings in the most sales, at ' + pct(topCat.net / net * 100, 0) + ' of net sales (' + fmtC(topCat.net) + ').');
+      if (cats.length > 1) {
+        var lowCat = cats.slice().sort(function (a, b) { return a.profit / a.net - b.profit / b.net; })[0];
+        items.push(lowCat.key + ' has the thinnest margin at ' + pct(lowCat.profit / lowCat.net * 100) + ', with an average discount of ' + pct(lowCat.disc / lowCat.n) + '.');
+      }
+      var losers = prods.filter(function (p) { return p.profit < 0; });
+      if (losers.length) {
+        items.push(losers.length + (losers.length === 1 ? ' product sells' : ' products sell') + ' at a loss after discounts: ' +
+          losers.map(function (p) { return p.key + ' (' + fmtC(p.profit) + ')'; }).join(', ') + '. Reducing the discount or renegotiating the cost would fix this.');
+      }
+      var fest = rows.filter(function (r) { return FESTIVE[r.m]; });
+      var reg = rows.filter(function (r) { return !FESTIVE[r.m]; });
+      if (fest.length && reg.length) {
+        var fm = sum(fest, 'profit') / sum(fest, 'net') * 100, rm = sum(reg, 'profit') / sum(reg, 'net') * 100;
+        items.push('Festival months (Oct, Nov, Jan, Apr) run at a ' + pct(fm) + ' margin versus ' + pct(rm) + ' in other months, so extra volume comes with heavier discounts.');
+      }
+      var upi = rows.filter(function (r) { return r.pay === 'UPI'; });
+      if (fPay.value === 'all') items.push('UPI accounts for ' + pct(sum(upi, 'net') / net * 100, 0) + ' of net sales, ahead of cash and card.');
+    } else {
+      items.push('No sales match this combination of filters.');
+    }
+    el('insights').innerHTML = items.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+  }
+
+  [fCat, fBranch, fPay].forEach(function (s) { s.addEventListener('change', render); });
+  el('reset').addEventListener('click', function () { fCat.value = fBranch.value = fPay.value = 'all'; render(); });
+
+  // Redraw charts when the light/dark theme changes
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', render);
+  }
+  new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  render();
+})();
+</script>
+</body>
+</html>
